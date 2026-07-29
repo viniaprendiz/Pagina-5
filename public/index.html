@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TDRIVE Ficha</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: Arial; background: linear-gradient(135deg, #667eea, #764ba2); min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .container { background: white; padding: 40px; border-radius: 10px; width: 90%; max-width: 500px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    h1 { color: #333; margin-bottom: 30px; text-align: center; }
+    .form-group { margin-bottom: 20px; }
+    label { display: block; margin-bottom: 8px; color: #555; font-weight: bold; }
+    input { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 5px; font-size: 14px; }
+    input:focus { outline: none; border-color: #667eea; }
+    button { width: 100%; padding: 12px; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    button:hover { opacity: 0.9; }
+    .status { margin-top: 20px; padding: 15px; border-radius: 5px; text-align: center; display: none; font-weight: bold; }
+    .status.ok { background: #d4edda; color: #155724; }
+    .status.erro { background: #f8d7da; color: #721c24; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>📋 TDRIVE Ficha</h1>
+  <div class="form-group">
+    <label>CPF:</label>
+    <input id="cpf" type="text" placeholder="000.000.000-00">
+  </div>
+  <div class="form-group">
+    <label>RG:</label>
+    <input id="rg" type="text" placeholder="00.000.000-0">
+  </div>
+  <div class="form-group">
+    <label>Data de Nascimento:</label>
+    <input id="data" type="date">
+  </div>
+  <button onclick="enviar()">Enviar Ficha</button>
+  <div id="status" class="status"></div>
+</div>
+<script>
+async function enviar() {
+  const cpf = document.getElementById('cpf').value;
+  const rg = document.getElementById('rg').value;
+  const data = document.getElementById('data').value;
+  const status = document.getElementById('status');
+  
+  if (!cpf || !rg || !data) { alert('Preencha todos!'); return; }
+  
+  status.textContent = '⏳ Enviando...';
+  status.className = 'status';
+  status.style.display = 'block';
+  
+  try {
+    const res = await fetch('/api/enviar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf, rg, data })
+    });
+    const r = await res.json();
+    if (r.sucesso) {
+      status.textContent = '✅ ' + r.mensagem;
+      status.className = 'status ok';
+    } else {
+      status.textContent = '❌ ' + r.erro;
+      status.className = 'status erro';
+    }
+  } catch (e) {
+    status.textContent = '❌ Erro: ' + e.message;
+    status.className = 'status erro';
+  }
+}
+</script>
+</body>
+</html>
